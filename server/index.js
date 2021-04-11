@@ -16,21 +16,20 @@ const pgClient = new Pool({
   host: keys.pgHost,
   database: keys.pgDatabase,
   password: keys.pgPassword,
-  port: keys.pgPort,
+  port: keys.pgPort
 });
+pgClient.on('error', () => console.log('Lost PG connection'));
 
-pgClient.on('connect', () => {
-  pgClient
-    .query('CREATE TABLE IF NOT EXISTS values (number INT)')
-    .catch((err) => console.log(err));
-});
+pgClient
+  .query('CREATE TABLE IF NOT EXISTS values (number INT)')
+  .catch(err => console.log(err));
 
 // Redis Client Setup
 const redis = require('redis');
 const redisClient = redis.createClient({
   host: keys.redisHost,
   port: keys.redisPort,
-  retry_strategy: () => 1000,
+  retry_strategy: () => 1000
 });
 const redisPublisher = redisClient.duplicate();
 
@@ -41,9 +40,9 @@ app.get('/', (req, res) => {
 });
 
 app.get('/values/all', async (req, res) => {
-  const values = await pgClient.query('SELECT * from values');
+  // const values = await pgClient.query('SELECT * from values');
 
-  res.send(values.rows);
+  res.send([1, 2, 3]);
 });
 
 app.get('/values/current', async (req, res) => {
@@ -66,6 +65,6 @@ app.post('/values', async (req, res) => {
   res.send({ working: true });
 });
 
-app.listen(5000, (err) => {
+app.listen(5000, err => {
   console.log('Listening');
 });
